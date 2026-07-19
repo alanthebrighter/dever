@@ -1,0 +1,12 @@
+{
+  "name": "js-starter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "exercise": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
