@@ -1,7 +1,7 @@
 
 ---
 
-# Desafio 3 — Sistema de Pagamentos
+# Desafio — Sistema de Pagamentos
 
 Crie um arquivo:
 
