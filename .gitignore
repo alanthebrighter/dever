@@ -52,3 +52,6 @@ desktop.ini
 # Relatórios de testes
 junit.xml
 test-results/
+
+# Windows trash
+*:Zone.Identifier
