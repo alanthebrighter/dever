@@ -1,3 +1,5 @@
+- [Fundamentos resumo](./mentos-learn.md)
+- [Fundamentos desafios](./mentos-pratice.md)
 # Testes dos Exercícios — JavaScript Fundamentos
 
 ## Setup
