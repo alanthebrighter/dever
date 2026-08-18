@@ -1,0 +1,27 @@
+{
+  "name": "js-fundamentos-testes",
+  "version": "1.0.0",
+  "description": "Testes dos exercícios de fundamentos de JavaScript",
+  "scripts": {
+    "test": "jest --runInBand",
+    "test:ex01": "jest ex01",
+    "test:ex02": "jest ex02",
+    "test:ex03": "jest ex03",
+    "test:ex04": "jest ex04",
+    "test:ex05": "jest ex05",
+    "test:ex06": "jest ex06",
+    "test:ex07": "jest ex07",
+    "test:ex08": "jest ex08",
+    "test:ex09": "jest ex09",
+    "test:ex10": "jest ex10",
+    "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 15000,
+    "verbose": true
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
