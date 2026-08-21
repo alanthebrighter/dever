@@ -149,42 +149,42 @@ export class SocialNetwork{
     }
 
     getFeed(user){
-        return this.posts.filter(item => {
-            if(user.following.includes(item.author)){
-                return item;
-            }
-        })
+        return this.posts.filter(item => user.following.includes(item.author));
     }
 
     getMostLikedPost(){
-        return this.posts.reduce((prev, current) => {
-            return prev.likes.length > current.likes.length ? prev : current 
-        })
+        return this.posts.reduce((prev, current) => prev.likes.length > current.likes.length ? prev : current);
     }
 
     getMostFollowedUser(){
-        return this.users.reduce((prev, current) => {
-            return prev.followers.length > current.followers.length ? prev : current; 
-        })
+        return this.users.reduce((prev, current) => prev.followers.length > current.followers.length ? prev : current);
     }
 
     getTotalLikes(){
-        return this.posts.reduce((acc, current) => {
-            return acc += current.likes.length;
-        }, 0)
+        return this.posts.reduce((acc, current) => acc += current.likes.length, 0);
     }
 
     static fromObject(data){
-        console.log(data.users);    
+        const tmpSocial = new SocialNetwork();
+
+        for (const user of data.users){
+            const tmpUser = new User(user.username, user.email);
+            tmpSocial.addUser(tmpUser);
+        }
+        for (const post of data.posts){
+            const tmpPost = new Post(tmpSocial.getUser(post.author), post.content);
+            tmpSocial.addPost(tmpPost);
+        }
+        return tmpSocial;
     }
 }
 
-export function buildSocialReport(){
+export function buildSocialReport(network){
     return {
-        totalUsers: 3,
-        totalPosts: 5,
-        totalLikes: 12,
-        mostFollowed: "alan",
-        mostLikedPost: "@bob: Learning JavaScript (5 likes)"
+        totalUsers: network.users.length,
+        totalPosts: network.posts.length,
+        totalLikes: network.getTotalLikes(),
+        mostFollowed: network.getMostFollowedUser().username,
+        mostLikedPost: network.getMostLikedPost().getSummary()
     }
 }
