@@ -9,7 +9,7 @@ export class Record {
     }
 
     set id(value){
-        if(!(typeof value === "number") || value < 0){
+        if(!Number.isInteger(value) || value < 1 ){
             throw new Error("id must be a positive integer");
         }
 
@@ -29,13 +29,14 @@ export class Record {
     }
 
     toJSON(){
-        return `{id: ${this.id}, createdAt: ${this.createdAt}}`;
+        const record = {id: this.id, createdAt: this.createdAt};
+        return record;
     }
 }
 
 export class User extends Record{
-    constructor(name, email){
-        super(id, this.createdAt);
+    constructor(id, createdAt, name, email){
+        super(id, createdAt);
         this.name = name;
         this.email = email;
     }
@@ -45,7 +46,7 @@ export class User extends Record{
     }
 
     set name(value){
-        if(!(typeof value === "string") || value.length < 1){
+        if(!(typeof value === "string") || value.length < 1 ){
             throw new Error("name must be a non-empty string");
         }
 
@@ -57,7 +58,7 @@ export class User extends Record{
     }
 
     set email(value){
-        if(!(typeof email === "string") || !value.includes("@")){
+        if(!(typeof value === "string") || !value.includes("@")){
             throw new Error("invalid email");
         }
 
@@ -65,7 +66,8 @@ export class User extends Record{
     }
 
     toJSON(){
-        return `{id: ${this.id}, createdAt: ${this.createdAt}, name: ${this.name}, email: ${this.email}}`;
+        const user = {id: this.id, createdAt: this.createdAt, name: this.name, email: this.email};
+        return user;
 
     }
 
@@ -73,8 +75,8 @@ export class User extends Record{
 }
 
 export class Post extends Record{
-    constructor(author, content){
-        super(id, this.createdAt);
+    constructor(id, createdAt, author, content){
+        super(id, createdAt);
         this.author = author;
         this.content = content;
         }
@@ -97,14 +99,14 @@ export class Post extends Record{
 
     set content(value){
         if(!(typeof value === "string") || value.length < 1){
-            throw new Error("content be a non-empty string");
+            throw new Error("content must be a non-empty string");
         }
 
         this._content = value;
     }
 
     toJSON(){
-        return `{id: ${this.id}, createdAt: ${this.createdAt}, author: ${this.author}, content: ${this.content}}`;
+        return {id: this.id, createdAt: this.createdAt, author: this.author, content: this.content};
     }
 }
 
@@ -116,19 +118,11 @@ export class Table{
     }
 
     get model(){
-        return this._table;
+        return this._model;
     }
 
     set model(value){
-        if(!(value instanceof User) || !(value instanceof Post)){
-            throw new Error("table must be a instance of User or Post");
-        }
-        if(value instanceof User){
-            this._model = new User();
-        }
-        if(value instanceof Post){
-            this._model = new Post();
-        }
+        this._model = value;
     }
 
     insert(record){
@@ -144,16 +138,16 @@ export class Table{
 
     findById(id){
         const record = this.records.find(record => record.id === id);
-
-        if(record > 0){
+        if(record){
             return record;
         } else {
             return null;
         }
+
     }
 
     findAll(){
-        return this.records.slice();
+        return [...this.records];
     }
 
     where(predicate){
@@ -161,6 +155,90 @@ export class Table{
     }
 
     update(id, changes){
+        const item = this.records.filter((element) => element.id === id)[0];
+        if(!item){
+            return null
+        }
+        for (const key in changes){
+
+            if(key === "id") continue;
+
+            if(key in item){
+                item[key] = changes[key];
+            }
+        }
+        return item;
+    }
+
+    delete(id){
+        const index  = this.records.findIndex((element) => element.id === id);
+
+        if(index === -1){
+            return false;
+        }
+        this.records.splice(index, 1)
+        return true;
 
     }
+
+    count(){
+        return this.records.length;
+    }
+}
+
+
+export class Database {
+    constructor(tables){
+        this.tables = {};
+    }
+
+    createTable(name, model){
+        this.tables[name] = new Table(model);
+    }
+
+    table(name){
+        return this.tables[name];
+    }
+
+    static fromObject(data){
+        const db = new Database();
+
+        const models = {
+            users: User,
+            posts: Post,
+        }
+
+        for (const tableName in data){
+            const ModelClass = models[tableName];
+
+            db.createTable(tableName, ModelClass);
+            const currentTable = db.table(tableName);
+
+            for (const rawItem of data[tableName]){
+                let instance;
+                if(ModelClass === User){
+                    instance = new User(1, new Date(), rawItem.name, rawItem.email);
+                } else if (ModelClass === Post){
+                    const user = db.table("users").where(usr => usr.name === rawItem.author)[0];
+                    instance = new Post(1, new Date(), user, rawItem.content);
+                }
+
+                if (instance){
+                    currentTable.insert(instance);
+                }
+            }
+        }
+        return db;
+    }
+}
+
+
+export function buildDatabaseReport(db){
+    const report = {};
+
+    for (const tableName in db.tables){
+        report[tableName] = db.tables[tableName].count();
+    }
+
+    return report;
 }
