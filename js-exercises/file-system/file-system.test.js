@@ -12,7 +12,7 @@ import {
   Directory,
   FileSystem,
   buildFileSystemReport,
-} from "./filesystem.js"; // ← ajuste o caminho conforme necessário
+} from "./file-system.js"; // ← ajuste o caminho conforme necessário
 
 // ─── Utilitários de teste ────────────────────────────────────────────────────
 
